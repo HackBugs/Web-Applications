@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .responsive-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 177.77%; /* Set the aspect ratio for a 9:16 screen */
+      overflow: hidden;
+    }
+
+    .responsive-container iframe,
+    .responsive-container object,
+    .responsive-container embed {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="responsive-container">
+    <a id="yg-widget-0" class="youglish-widget" data-query="great%20power" data-lang="english" data-components="8415" data-bkg-color="theme_light" rel="nofollow" href="https://youglish.com">Visit YouGlish.com</a>
+    <script async src="https://youglish.com/public/emb/widget.js" charset="utf-8"></script>
+  </div>
+
+  <button id="toggle-emulation" onclick="toggleDeviceEmulation()">Toggle Device Emulation</button>
+
+  <script>
+    var isEmulating = false;
+
+    function toggleDeviceEmulation() {
+      var viewportMetaTag = document.querySelector('meta[name="viewport"]');
+
+      if (!isEmulating) {
+        viewportMetaTag.setAttribute('content', 'width=375, initial-scale=1');
+        isEmulating = true;
+      } else {
+        viewportMetaTag.setAttribute('content', 'width=device-width, initial-scale=1');
+        isEmulating = false;
+      }
+
+      resizeYouGlishWidget();
+    }
+
+    function resizeYouGlishWidget() {
+      var container = document.querySelector('.responsive-container');
+      var widget = document.querySelector('.youglish-widget');
+      var aspectRatio = 9 / 16; // Assuming a 9:16 aspect ratio for the screen
+
+      var width = container.offsetWidth;
+      var height = width * aspectRatio;
+
+      widget.style.width = width + 'px';
+      widget.style.height = height + 'px';
+    }
+
+    // Initial resize
+    resizeYouGlishWidget();
+
+    // Resize on orientation change
+    window.addEventListener('orientationchange', resizeYouGlishWidget);
+  </script>
+</body>
+</html>

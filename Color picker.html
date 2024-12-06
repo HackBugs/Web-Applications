@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color Picker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .color-picker {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .color-picker:hover {
+            transform: scale(1.05);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .color-box {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #ccc;
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .color-value {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .color-input {
+            margin-bottom: 10px;
+        }
+        
+        .color-button {
+            padding: 8px 16px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .color-button:hover {
+            background-color: #45a049;
+        }
+        
+        .color-button:active {
+            background-color: #3d8f3d;
+        }
+    </style>
+</head>
+<body>
+    <div class="color-picker">
+        <h1>Color Picker</h1>
+        <div class="color-box"></div>
+        <p class="color-value">#000000</p>
+        <input type="color" class="color-input">
+        <button class="color-button" onclick="updateColor()">Update Color</button>
+    </div>
+
+    <script>
+        function updateColor() {
+            var colorInput = document.querySelector('.color-input');
+            var colorBox = document.querySelector('.color-box');
+            var colorValue = document.querySelector('.color-value');
+
+            var selectedColor = colorInput.value;
+            colorBox.style.backgroundColor = selectedColor;
+            colorValue.textContent = selectedColor;
+        }
+    </script>
+</body>
+</html>

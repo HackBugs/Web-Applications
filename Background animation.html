@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+  <style>
+    body {
+      background: linear-gradient(45deg, blue, yellow, pink, silver);
+      background-size: 800% 800%;
+      animation: gradientAnimation 10s ease infinite;
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+    }
+
+    @keyframes gradientAnimation {
+      0% {
+        background-position: 0% 50%;
+      }
+      25% {
+        background-position: 100% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      75% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      background-color: #f43336;
+      border-radius: 50%;
+      color: #ffff4f;
+      font-size: 22px;
+      font-weight: bold;
+      text-transform: uppercase;
+      animation: logoAnimation 4s ease-in-out;
+    }
+
+    @keyframes logoAnimation {
+      0% {
+        transform: scale(0);
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .title {
+      opacity: 0;
+      animation: titleAnimation 2s 4s ease-in-out forwards;
+      font-size: 50px;
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    @keyframes titleAnimation {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">HackBugs</div>
+    <h1 class="title">Professional Web Application</h1>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        var titleElement = document.querySelector('.title');
+        titleElement.style.opacity = '1';
+      }, 15000);
+    };
+  </script>
+</body>
+</html>

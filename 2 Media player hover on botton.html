@@ -1,0 +1,295 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.light {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    body.dark {
+      background-color: #000000;
+      color: #ffffff;
+    }
+
+    #player-container {
+      width: 100%;
+      height: 65%;
+      max-width: 800px;
+      margin: 40px auto;
+      background-color: #f0f0f0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    video, audio {
+    width: 100%;
+    height: 100%;
+    }
+
+    #nav-menu {
+      position: absolute;
+      bottom: 10px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      background-color: #f2f2f2;
+      padding: 10px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    #nav-menu .button {
+      padding: 10px 20px;
+      background-color: #000000;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    #nav-menu .button:hover {
+      background-color: #45a049;
+    }
+
+    #nav-menu.dark {
+      background-color: #333333;
+      color: #ffffff;
+    }
+
+    #action-display {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+  </style>
+</head>
+<body class="light">
+  <div id="player-container">
+    <video id="video-player" controls></video>
+  </div>
+  <div id="nav-menu">
+    <button id="upload-button" class="button">Upload Audio/Video</button>
+    <button id="subtitle-button" class="button">Upload Subtitle</button>
+    <button id="backward-button" class="button">Backward</button>
+    <button id="forward-button" class="button">Forward</button>
+    <button id="speed-button" class="button">Speed</button>
+    <button id="volume-up-button" class="button">Volume Up</button>
+    <button id="volume-down-button" class="button">Volume Down</button>
+    <button id="mute-button" class="button">Mute/Unmute</button>
+    <button id="loop-button" class="button">Loop</button>
+    <button id="full-page-button" class="button">Full Page</button>
+    <button id="theme-button" class="button">Toggle Theme</button>
+    <button id="pip-button" class="button">Picture-in-Picture</button>
+  </div>
+
+  <input type="file" id="upload-input" accept="audio/*,video/*" style="display: none;">
+  <input type="file" id="subtitle-input" accept=".srt" style="display: none;">
+
+  <div id="action-display"></div>
+
+  <script>
+    const videoPlayer = document.getElementById('video-player');
+    const uploadButton = document.getElementById('upload-button');
+    const subtitleButton = document.getElementById('subtitle-button');
+    const backwardButton = document.getElementById('backward-button');
+    const forwardButton = document.getElementById('forward-button');
+    const speedButton = document.getElementById('speed-button');
+    const volumeUpButton = document.getElementById('volume-up-button');
+    const volumeDownButton = document.getElementById('volume-down-button');
+    const muteButton = document.getElementById('mute-button');
+    const loopButton = document.getElementById('loop-button');
+    const fullPageButton = document.getElementById('full-page-button');
+    const pipButton = document.getElementById('pip-button');
+    const themeButton = document.getElementById('theme-button');
+    const uploadInput = document.getElementById('upload-input');
+    const subtitleInput = document.getElementById('subtitle-input');
+    const actionDisplay = document.getElementById('action-display');
+
+    let actionTimeout = null;
+    let playbackSpeeds = [1, 1.25, 1.5, 1.75, 2];
+    let currentSpeedIndex = 0;
+
+    // Event listener for file upload
+    uploadButton.addEventListener('click', () => {
+      uploadInput.click();
+    });
+
+    uploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const fileURL = URL.createObjectURL(file);
+        if (file.type.startsWith('video')) {
+          videoPlayer.src = fileURL;
+          audioPlayer.pause();
+        } else if (file.type.startsWith('audio')) {
+          audioPlayer.src = fileURL;
+          videoPlayer.pause();
+        }
+      }
+    });
+
+    // Event listener for subtitle upload
+    subtitleButton.addEventListener('click', () => {
+      subtitleInput.click();
+    });
+
+    subtitleInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const subtitles = event.target.result;
+          // Process and display subtitles
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // Function to toggle full-screen mode
+    fullPageButton.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+        displayAction('Exited Fullscreen');
+      } else {
+        document.documentElement.requestFullscreen();
+        displayAction('Entered Fullscreen');
+      }
+    });
+
+    // Function to control video backward
+    backwardButton.addEventListener('click', () => {
+      if (videoPlayer.duration) {
+        const currentTime = videoPlayer.currentTime;
+        const newTime = currentTime - 10; // Backward by 10 seconds
+        if (newTime >= 0) {
+          videoPlayer.currentTime = newTime;
+          displayAction('Backward 10 seconds');
+        }
+      }
+    });
+
+    // Function to control video forward
+    forwardButton.addEventListener('click', () => {
+      if (videoPlayer.duration) {
+        const currentTime = videoPlayer.currentTime;
+        const newTime = currentTime + 10; // Forward by 10 seconds
+        if (newTime <= videoPlayer.duration) {
+          videoPlayer.currentTime = newTime;
+          displayAction('Forward 10 seconds');
+        }
+      }
+    });
+
+    // Function to control video playback speed
+    speedButton.addEventListener('click', () => {
+      currentSpeedIndex = (currentSpeedIndex + 1) % playbackSpeeds.length;
+      const newPlaybackRate = playbackSpeeds[currentSpeedIndex];
+      videoPlayer.playbackRate = newPlaybackRate;
+      displayAction(`Playback speed: ${newPlaybackRate}x`);
+    });
+
+    // Function to control volume up
+    volumeUpButton.addEventListener('click', () => {
+      if (videoPlayer.volume < 1) {
+        videoPlayer.volume = Math.min(videoPlayer.volume + 0.1, 1);
+        audioPlayer.volume = videoPlayer.volume;
+        displayAction(`Volume: ${Math.round(videoPlayer.volume * 100)}%`);
+      }
+    });
+
+    // Function to control volume down
+    volumeDownButton.addEventListener('click', () => {
+      if (videoPlayer.volume > 0) {
+        videoPlayer.volume = Math.max(videoPlayer.volume - 0.1, 0);
+        audioPlayer.volume = videoPlayer.volume;
+        displayAction(`Volume: ${Math.round(videoPlayer.volume * 100)}%`);
+      }
+    });
+
+    // Function to toggle mute
+    muteButton.addEventListener('click', () => {
+      videoPlayer.muted = !videoPlayer.muted;
+      audioPlayer.muted = videoPlayer.muted;
+      displayAction(videoPlayer.muted ? 'Muted' : 'Unmuted');
+    });
+
+    // Function to toggle loop
+    loopButton.addEventListener('click', () => {
+      videoPlayer.loop = !videoPlayer.loop;
+      audioPlayer.loop = videoPlayer.loop;
+      displayAction(videoPlayer.loop ? 'Loop: On' : 'Loop: Off');
+    });
+
+    // Function to toggle Picture-in-Picture
+    pipButton.addEventListener('click', async () => {
+      if (document.pictureInPictureElement) {
+        document.exitPictureInPicture();
+      } else {
+        try {
+          await videoPlayer.requestPictureInPicture();
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    });
+
+    // Function to toggle theme
+    themeButton.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
+      document.getElementById('nav-menu').classList.toggle('dark');
+      displayAction(document.body.classList.contains('dark') ? 'Dark Theme' : 'Light Theme');
+    });
+
+    function displayAction(action) {
+      actionDisplay.textContent = action;
+      if (actionTimeout) {
+        clearTimeout(actionTimeout);
+      }
+      actionTimeout = setTimeout(() => {
+        actionDisplay.textContent = '';
+      }, 2000);
+    }
+
+    // Update seek bar and time display
+    function updateSeekBar() {
+      seekBar.value = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+      const currentTime = formatTime(videoPlayer.currentTime);
+      const duration = formatTime(videoPlayer.duration);
+      timeDisplay.textContent = `${currentTime} / ${duration}`;
+    }
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    videoPlayer.addEventListener('timeupdate', updateSeekBar);
+
+    seekBar.addEventListener('input', () => {
+      videoPlayer.currentTime = (seekBar.value / 100) * videoPlayer.duration;
+    });
+
+    videoPlayer.addEventListener('loadedmetadata', updateSeekBar);
+  </script>
+</body>
+</html>

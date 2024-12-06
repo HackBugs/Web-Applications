@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ChatGPT Interface</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: #ffffff;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 300px;
+      background-color: rgb(32, 33, 35);
+      padding: 20px;
+      overflow-y: scroll;
+      border-right: none; /* Remove right border */
+    }
+
+    .chat {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: scroll;
+      background-color: rgb(52, 52, 64);
+      position: relative;
+      border-left: none; /* Remove left border */
+    }
+
+    .chat-buttons {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .chat-button {
+      margin-left: 5px;
+    }
+
+    .note-input {
+      width: 100%;
+      padding: 8px;
+      margin-top: auto; /* Position at the bottom */
+      resize: vertical;
+    }
+
+    .note-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .note {
+      background-color: #343541;
+      color: #ffffff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .note:hover {
+      background-color: #3c3e4b;
+    }
+
+    .note-buttons {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 5px;
+    }
+
+    .note-button {
+      margin-left: 5px;
+      padding: 5px 10px;
+    }
+
+    .chat-options {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+    }
+
+    .chat-option {
+      margin-left: 5px;
+    }
+
+    .light-mode {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .dark-mode {
+      background-color: #000000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <button class="chat-button" onclick="addNewNote()">Add New Note</button>
+      <ul id="noteList" class="note-list"></ul>
+      <button class="chat-button" onclick="saveToFile()">Save Notes to File</button>
+    </div>
+    <div class="chat">
+      <div class="chat-buttons">
+        <button class="chat-button" onclick="saveNote()">Save</button>
+      </div>
+      <textarea id="userInput" class="note-input" placeholder="Enter your note..."></textarea>
+      <div class="chat-options">
+        <button class="chat-option" onclick="toggleFullScreen()">Full Screen</button>
+        <button class="chat-option" onclick="toggleLightMode()">Light Mode</button>
+        <button class="chat-option" onclick="toggleDarkMode()">Dark Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Array to hold notes
+    let notes = [];
+
+    // Function to save a new note
+    function saveNote() {
+      const userInput = document.getElementById("userInput");
+      const noteText = userInput.value;
+      if (noteText.trim() !== "") {
+        notes.push(noteText);
+        userInput.value = "";
+        displayNotes();
+      }
+    }
+
+    // Function to save notes as a text file
+    function saveToFile() {
+      const notesText = notes.join('\n');
+      const blob = new Blob([notesText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'notes.txt';
+      link.click();
+    }
+
+    // Function to display notes in the sidebar
+    function displayNotes() {
+      const noteList = document.getElementById("noteList");
+      noteList.innerHTML = "";
+      notes.forEach((note, index) => {
+        const noteElement = createNoteElement(note, index);
+        noteList.appendChild(noteElement);
+      });
+    }
+
+    // Function to create a note element with edit and delete options
+    function createNoteElement(note, index) {
+      const noteElement = document.createElement("li");
+      noteElement.className = "note";
+      noteElement.textContent = note;
+      noteElement.addEventListener("click", () => {
+        displayNoteContent(note);
+      });
+
+      const noteButtons = document.createElement("div");
+      noteButtons.className = "note-buttons";
+
+      const editButton = document.createElement("button");
+      editButton.className = "note-button";
+      editButton.textContent = "Edit";
+      editButton.addEventListener("click", () => {
+        editNote(index);
+      });
+      noteButtons.appendChild(editButton);
+
+      const deleteButton = document.createElement("button");
+      deleteButton.className = "note-button";
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", () => {
+        deleteNote(index);
+      });
+      noteButtons.appendChild(deleteButton);
+
+      noteElement.appendChild(noteButtons);
+
+      return noteElement;
+    }
+
+    // Function to edit a note
+    function editNote(index) {
+      const noteToEdit = notes[index];
+      const editedNote = prompt("Edit the note:", noteToEdit);
+      if (editedNote !== null) {
+        notes[index] = editedNote;
+        displayNotes();
+      }
+    }
+
+    // Function to delete a note
+    function deleteNote(index) {
+      notes.splice(index, 1);
+      displayNotes();
+    }
+
+    // Function to display the content of a note
+    function displayNoteContent(note) {
+      const chatContent = document.querySelector(".chat-content");
+      chatContent.textContent = note;
+    }
+
+    // Function to add a new note
+    function addNewNote() {
+      const newNote = "New Note";
+      notes.push(newNote);
+      displayNotes();
+    }
+
+    // Function to toggle full screen mode
+    function toggleFullScreen() {
+      const chatContainer = document.querySelector(".container");
+      if (!document.fullscreenElement) {
+        chatContainer.requestFullscreen().catch(err => {
+          console.log(`Error attempting to enable full-screen mode: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Function to toggle light mode
+    function toggleLightMode() {
+      const body = document.body;
+      body.classList.remove("dark-mode");
+      body.classList.add("light-mode");
+    }
+
+    // Function to toggle dark mode
+    function toggleDarkMode() {
+      const body = document.body;
+      body.classList.remove("light-mode");
+      body.classList.add("dark-mode");
+    }
+
+    // Event listener for sending notes on pressing Enter
+    const userInput = document.getElementById("userInput");
+    userInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        saveNote();
+      }
+    });
+
+    // Initial display of notes
+    displayNotes();
+  </script>
+</body>
+</html>

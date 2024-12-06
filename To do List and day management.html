@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Productivity and Note-Taking App</title>
+  <style>
+    /* CSS styles for the app */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: black;
+      color: white;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #1f1f1f;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .section {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 10px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .input-group input,
+    .input-group textarea {
+      width: 100%;
+      padding: 5px;
+      border-radius: 3px;
+      border: 1px solid #ccc;
+      background-color: #333;
+      color: white;
+    }
+
+    .btn-group {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .btn {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+    }
+
+    .task-list {
+      margin-top: 20px;
+    }
+
+    .task-list h3 {
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .timer {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    .time-select {
+      display: inline-block;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Productivity and Note-Taking App</h2>
+
+    <div class="section">
+      <h3>Add Task</h3>
+      <div class="input-group">
+        <label for="taskNameInput">Task Name:</label>
+        <input type="text" id="taskNameInput" placeholder="Enter task name">
+      </div>
+      <div class="input-group">
+        <label for="projectNameInput">Project Name:</label>
+        <input type="text" id="projectNameInput" placeholder="Enter project name">
+      </div>
+      <div class="input-group">
+        <label for="taskDescriptionInput">Task Description:</label>
+        <textarea id="taskDescriptionInput" placeholder="Enter task description"></textarea>
+      </div>
+      <div class="input-group">
+        <label for="taskTimeInput">Task Time:</label>
+        <input type="number" id="taskTimeInput" placeholder="Enter task time">
+        <select id="timeSelect" class="time-select">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <button class="btn" onclick="addTask()">Add Task</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="task-list">
+        <h3>Task List</h3>
+        <table id="taskTable">
+          <thead>
+            <tr>
+              <th>Task Name</th>
+              <th>Project Name</th>
+              <th>Task Description</th>
+              <th>Task Time</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="taskList"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn" onclick="startAllTimers()">Start All Timers</button>
+      <button class="btn" onclick="stopAllTimers()">Stop All Timers</button>
+      <button class="btn delete-btn" onclick="deleteAllTasks()">Delete All Tasks</button>
+      <button class="btn" onclick="undo()">Undo</button>
+      <button class="btn" onclick="redo()">Redo</button>
+    </div>
+  </div>
+
+  <script>
+    var startTime;
+    var timerInterval;
+    var taskHistory = [];
+    var currentTaskIndex = -1;
+
+    function addTask() {
+      var taskName = document.getElementById("taskNameInput").value;
+      var projectName = document.getElementById("projectNameInput").value;
+      var taskDescription = document.getElementById("taskDescriptionInput").value;
+      var taskTime = document.getElementById("taskTimeInput").value;
+      var timeSelect = document.getElementById("timeSelect").value;
+
+      if (taskName === "" || projectName === "" || taskDescription === "" || taskTime === "") {
+        alert("Please fill in all the fields.");
+        return;
+      }
+
+      var taskTable = document.getElementById("taskTable");
+      var row = taskTable.insertRow(-1);
+
+      var cell1 = row.insertCell(0);
+      cell1.textContent = taskName;
+
+      var cell2 = row.insertCell(1);
+      cell2.textContent = projectName;
+
+      var cell3 = row.insertCell(2);
+      cell3.textContent = taskDescription;
+
+      var cell4 = row.insertCell(3);
+      cell4.textContent = taskTime + " " + timeSelect;
+
+      var cell5 = row.insertCell(4);
+      var startButton = document.createElement("button");
+      startButton.className = "btn";
+      startButton.textContent = "Start";
+      startButton.addEventListener("click", function() {
+        startTimer(taskTime, timeSelect);
+      });
+      cell5.appendChild(startButton);
+
+      var deleteButton = document.createElement("button");
+      deleteButton.className = "btn delete-btn";
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", function() {
+        deleteTask(row);
+      });
+      cell5.appendChild(deleteButton);
+
+      // Add task to history for undo/redo
+      var taskData = {
+        taskName: taskName,
+        projectName: projectName,
+        taskDescription: taskDescription,
+        taskTime: taskTime,
+        timeSelect: timeSelect
+      };
+      taskHistory.push(taskData);
+      currentTaskIndex++;
+
+      // Clear input fields
+      document.getElementById("taskNameInput").value = "";
+      document.getElementById("projectNameInput").value = "";
+      document.getElementById("taskDescriptionInput").value = "";
+      document.getElementById("taskTimeInput").value = "";
+      document.getElementById("timeSelect").value = "AM";
+    }
+
+    function startTimer(taskTime, timeSelect) {
+      startTime = new Date().getTime();
+
+      timerInterval = setInterval(function() {
+        var currentTime = new Date().getTime();
+        var timeDiff = currentTime - startTime;
+
+        var hours = Math.floor(timeDiff / (1000 * 60 * 60));
+        var minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+        var timer = hours + ":" + formatTime(minutes) + ":" + formatTime(seconds) + " " + timeSelect;
+        var taskTable = document.getElementById("taskTable");
+        var rowIndex = Array.from(taskTable.rows).findIndex(function(row) {
+          return row.cells[3].textContent === taskTime + " " + timeSelect;
+        });
+        taskTable.rows[rowIndex].cells[3].textContent = timer;
+      }, 1000);
+    }
+
+    function deleteTask(row) {
+      var table = document.getElementById("taskTable");
+      table.deleteRow(row.rowIndex);
+
+      // Remove task from history
+      taskHistory.splice(currentTaskIndex, 1);
+      currentTaskIndex--;
+    }
+
+    function deleteAllTasks() {
+      var table = document.getElementById("taskTable");
+      var rowCount = table.rows.length;
+
+      for (var i = rowCount - 1; i > 0; i--) {
+        table.deleteRow(i);
+      }
+
+      // Clear task history
+      taskHistory = [];
+      currentTaskIndex = -1;
+    }
+
+    function startAllTimers() {
+      var taskTable = document.getElementById("taskTable");
+      var rows = taskTable.rows;
+
+      for (var i = 1; i < rows.length; i++) {
+        var taskTimeCell = rows[i].cells[3];
+        var taskTime = taskTimeCell.textContent.split(" ")[0];
+        var timeSelect = taskTimeCell.textContent.split(" ")[1];
+        startTimer(taskTime, timeSelect);
+      }
+    }
+
+    function stopAllTimers() {
+      clearInterval(timerInterval);
+    }
+
+    function undo() {
+      if (currentTaskIndex > -1) {
+        var taskTable = document.getElementById("taskTable");
+        taskTable.deleteRow(currentTaskIndex + 1);
+        currentTaskIndex--;
+      }
+    }
+
+    function redo() {
+      if (currentTaskIndex < taskHistory.length - 1) {
+        var taskTable = document.getElementById("taskTable");
+        var nextTaskIndex = currentTaskIndex + 2;
+        var taskData = taskHistory[nextTaskIndex];
+        var row = taskTable.insertRow(nextTaskIndex);
+        var cells = [];
+
+        for (var i = 0; i < 5; i++) {
+          cells[i] = row.insertCell(i);
+        }
+
+        cells[0].textContent = taskData.taskName;
+        cells[1].textContent = taskData.projectName;
+        cells[2].textContent = taskData.taskDescription;
+        cells[3].textContent = taskData.taskTime + " " + taskData.timeSelect;
+
+        var startButton = document.createElement("button");
+        startButton.className = "btn";
+        startButton.textContent = "Start";
+        startButton.addEventListener("click", function() {
+          startTimer(taskData.taskTime, taskData.timeSelect);
+        });
+        cells[4].appendChild(startButton);
+
+        var deleteButton = document.createElement("button");
+        deleteButton.className = "btn delete-btn";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", function() {
+          deleteTask(row);
+        });
+        cells[4].appendChild(deleteButton);
+
+        currentTaskIndex++;
+      }
+    }
+
+    function formatTime(time) {
+      return time < 10 ? "0" + time : time;
+    }
+  </script>
+</body>
+</html>

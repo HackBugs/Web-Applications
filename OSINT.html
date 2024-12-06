@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tree-like Website</title>
+    <style>
+        /* CSS styles for the tree structure */
+        .tree ul {
+            margin-left: 1em;
+            padding-left: 1em;
+            position: relative;
+        }
+
+        .tree ul:before {
+            content: "";
+            display: block;
+            border-left: 1px solid #ccc;
+            position: absolute;
+            left: -0.5em;
+            top: 0;
+            height: 100%;
+        }
+
+        .tree li {
+            list-style-type: none;
+            margin: 0;
+            padding: 0 1em;
+            line-height: 2em;
+            color: #333;
+            position: relative;
+        }
+
+        .tree li:before {
+            content: "";
+            display: block;
+            border-top: 1px solid #ccc;
+            position: absolute;
+            top: 1em;
+            left: -0.5em;
+            width: 1em;
+            height: 1em;
+            background-color: #fff;
+        }
+
+        .tree li:last-child:before {
+            border-left: 1px solid #ccc;
+            bottom: 0.5em;
+            height: calc(100% - 1.5em);
+        }
+
+        .tree li.parent-node:before {
+            content: "+";
+            display: block;
+            position: absolute;
+            top: 0.6em;
+            left: -0.7em;
+            font-size: 1.5em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .tree li.hide {
+            display: none;
+        }
+
+        .tree li.show:before {
+            content: "-";
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <!-- Header content goes here -->
+    </header>
+
+    <nav>
+        <!-- Navigation menu goes here -->
+    </nav>
+
+    <main>
+        <ul class="tree">
+            <li class="parent-node">HackBugs
+                <ul>
+                    <li><a href="https://learn.uno/">learn.uno</a></li>
+                    <li><a href="https://www.notion.so/">Notion</a></li>
+                    <li><a href="https://noonshot.com/">MidJourney Prompt Tool</a></li>
+                    <li><a href="https://creatorset.com/">CreatorSet</a></li>
+                    <li><a href="https://ascii-generator.com/">ASCII-Generator</a></li>
+                    <li><a href="https://www.captions.ai/">Captions</a></li>
+                    <li><a href="https://www.adobe.com/products/audition.html">Adobe Podcast</a></li>
+                    <li><a href="https://gptexcel.uk/formulas">gptexcel.uk/formulas</a></li>
+                    <li><a href="https://www.pinterest.com/">Pinterest</a></li>
+                    <li><a href="https://vondy.ai/">Vondy</a></li>
+                    <li><a href="https://opus.pro/">Oops!</a></li>
+                    <li><a href="https://www.codebeautify.org/">Code Beautify</a></li>
+                    <li><a href="https://editpad.org/">Edit Pad</a></li>
+                    <li><a href="https://www.seoclerk.com/">SEO Marketplace</a></li>
+                    <li><a href="https://github.com/TCM-Course-Resources/Practical-Ethical-Hacking-Resources">Practical Ethical Hacking Resources</a></li>
+                    <li><a href="https://vscode.dev/">VS Code Dev</a></li>
+                    <li><a href="https://codebeautify.org/">Code Beautify</a></li>
+                    <li><a href="https://flipboard.com/">Flipboard</a></li>
+                    <li><a href="https://sqlzoo.net/wiki/SQL_Tutorial">SQLZoo</a></li>
+                    <li><a href="http://sqlfiddle.com/#!9/cf23fc5">SQL Fiddle</a></li>
+                    <li><a href="https://www.programiz.com/sql/online-compiler/">Programiz SQL Online Compiler</a></li>
+                    <li><a href="https://www.wideskills.com/">WideSkills</a></li>
+                    <li><a href="https://quillbot.com/">Quillbot</a></li>
+                    <li><a href="https://osintframework.com/">OSINT Framework</a></li>
+                    <li><a href="https://make.powerautomate.com/environments/6a43d1a0-d8cc-e717-809c-fb4675b241da/home">Power Automate</a></li>
+                    <li><a href="https://www.allyoucanread.com/">All You Can Read</a></li>
+                    <li><a href="https://gchq.github.io/CyberChef/#input=aGkK">CyberChef</a></li>
+                    <li><a href="https://www.w3schools.com/">W3Schools</a></li>
+                    <li><a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysinternals-suite">Sysinternals Suite</a></li>
+                    <li><a href="https://malwareanalysis.tools/">Malware Analysis Tools</a></li>
+                    <li><a href="https://www.android-x86.org/">Android-x86</a></li>
+                    <li><a href="https://viewdns.info/">ViewDNS</a></li>
+                    <li><a href="https://gamehacking.academy/lesson/1/2">Game Hacking Academy</a></li>
+                    <li><a href="https://www.youtube.com/watch?v=HmIUJWZ1cZo&list=PLGaefQX49kgREVULItYXYQV1pL_-Xb8u-">YouTube Playlist</a></li>
+                </ul>
+            </li>
+            <li class="parent-node">Training</li>
+            <li class="parent-node">Documentation</li>
+            <li class="parent-node">OpSec</li>
+            <li class="parent-node">Threat Intelligence</li>
+            <li class="parent-node">Exploits & Advisories</li>
+            <li class="parent-node">Malicious File Analysis</li>
+            <li class="parent-node">Tools</li>
+            <li class="parent-node">Encoding / Decoding</li>
+            <li class="parent-node">Classifieds</li>
+            <li class="parent-node">Digital Currency</li>
+            <li class="parent-node">Dark Web</li>
+            <li class="parent-node">Terrorism</li>
+            <li class="parent-node">Mobile Emulation</li>
+            <li class="parent-node">Metadata</li>
+            <li class="parent-node">Forensics</li>
+            <li class="parent-node">Virtual Labs</li>
+            <li class="parent-node">Guides & Tutorials</li>
+            <li class="parent-node">News</li>
+        </ul>
+    </main>
+
+    <footer>
+        <!-- Footer content goes here -->
+    </footer>
+
+    <script>
+        // JavaScript code to toggle hide/show functionality
+        const parentNodes = document.querySelectorAll('.parent-node');
+
+        parentNodes.forEach(parentNode => {
+            parentNode.addEventListener('click', () => {
+                parentNode.classList.toggle('show');
+                const childNodes = parentNode.querySelectorAll('ul > li');
+                childNodes.forEach(childNode => {
+                    childNode.classList.toggle('hide');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

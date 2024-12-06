@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #player-container {
+      width: 100%;
+      height: 80%;
+      position: relative;
+    }
+
+    video, audio {
+      width: 100%;
+      height: 100%;
+    }
+
+    #nav-menu {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      background-color: #f2f2f2;
+      padding: 10px;
+    }
+
+    #nav-menu .button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    #nav-menu .button:hover {
+      background-color: #45a049;
+    }
+
+    #action-display {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="player-container">
+    <video id="video-player" controls></video>
+    <audio id="audio-player" controls></audio>
+  </div>
+  <div id="nav-menu">
+    <button id="upload-button" class="button">Upload Audio/Video</button>
+    <button id="subtitle-button" class="button">Upload Subtitle</button>
+    <button id="resize-button" class="button" onclick="resizeScreen(100)">100%</button>
+    <button id="full-page-button" class="button">Full Page</button>
+    <button id="forward-button" class="button">Forward</button>
+    <button id="speed-button" class="button">Speed</button>
+  </div>
+
+  <input type="file" id="upload-input" accept="audio/*,video/*" style="display: none;">
+  <input type="file" id="subtitle-input" accept=".srt" style="display: none;">
+
+  <div id="action-display"></div>
+
+  <script>
+    const videoPlayer = document.getElementById('video-player');
+    const audioPlayer = document.getElementById('audio-player');
+    const uploadButton = document.getElementById('upload-button');
+    const subtitleButton = document.getElementById('subtitle-button');
+    const resizeButton = document.getElementById('resize-button');
+    const fullPageButton = document.getElementById('full-page-button');
+    const forwardButton = document.getElementById('forward-button');
+    const speedButton = document.getElementById('speed-button');
+    const uploadInput = document.getElementById('upload-input');
+    const subtitleInput = document.getElementById('subtitle-input');
+    const actionDisplay = document.getElementById('action-display');
+
+    let actionTimeout = null;
+
+    // Event listener for file upload
+    uploadButton.addEventListener('click', () => {
+      uploadInput.click();
+    });
+
+    uploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const fileURL = URL.createObjectURL(file);
+        if (file.type.startsWith('video')) {
+          videoPlayer.src = fileURL;
+          audioPlayer.pause();
+        } else if (file.type.startsWith('audio')) {
+          audioPlayer.src = fileURL;
+          videoPlayer.pause();
+        }
+      }
+    });
+
+    // Event listener for subtitle upload
+    subtitleButton.addEventListener('click', () => {
+      subtitleInput.click();
+    });
+
+    subtitleInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        // Process the subtitle file
+      }
+    });
+
+    // Function to resize the screen
+    function resizeScreen(scale) {
+      document.body.style.transform = `scale(${scale / 100})`;
+    }
+
+    // Function to toggle full-screen mode
+    fullPageButton.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        document.documentElement.requestFullscreen();
+      }
+    });
+
+    // Function to control video forward
+    forwardButton.addEventListener('click', () => {
+      if (videoPlayer.duration) {
+        const currentTime = videoPlayer.currentTime;
+        const newTime = currentTime + 10; // Forward by 10 seconds
+        if (newTime <= videoPlayer.duration) {
+          videoPlayer.currentTime = newTime;
+          displayAction('Forward 10 seconds');
+        }
+      }
+    });
+
+    // Function to control video playback speed
+    speedButton.addEventListener('click', () => {
+      const currentPlaybackRate = videoPlayer.playbackRate;
+      const newPlaybackRate = currentPlaybackRate === 1 ? 2 : 1; // Toggle between 1x and 2x speed
+      videoPlayer.playbackRate = newPlaybackRate;
+      displayAction(`Playback speed: ${newPlaybackRate}x`);
+    });
+
+    // Event listener for keydown event
+    document.addEventListener('keydown', (event) => {
+      // Pause/play on space button press
+      if (event.code === 'Space') {
+        if (videoPlayer.paused) {
+          videoPlayer.play();
+          audioPlayer.play();
+          displayAction('Play');
+        } else {
+          videoPlayer.pause();
+          audioPlayer.pause();
+          displayAction('Pause');
+        }
+      }
+
+      // Forward 5 seconds on arrow right press
+      if (event.code === 'ArrowRight') {
+        if (videoPlayer.duration) {
+          const currentTime = videoPlayer.currentTime;
+          const newTime = currentTime + 5; // Forward by 5 seconds
+          if (newTime <= videoPlayer.duration) {
+            videoPlayer.currentTime = newTime;
+            displayAction('Forward 5 seconds');
+          }
+        }
+      }
+
+      // Backward 5 seconds on arrow left press
+      if (event.code === 'ArrowLeft') {
+        if (videoPlayer.duration) {
+          const currentTime = videoPlayer.currentTime;
+          const newTime = currentTime - 5; // Backward by 5 seconds
+          if (newTime >= 0) {
+            videoPlayer.currentTime = newTime;
+            displayAction('Backward 5 seconds');
+          }
+        }
+      }
+
+      // Increase playback speed on arrow up press
+      if (event.code === 'ArrowUp') {
+        const currentPlaybackRate = videoPlayer.playbackRate;
+        const newPlaybackRate = currentPlaybackRate + 0.5;
+        videoPlayer.playbackRate = newPlaybackRate;
+        displayAction(`Playback speed: ${newPlaybackRate}x`);
+      }
+
+      // Decrease playback speed on arrow down press
+      if (event.code === 'ArrowDown') {
+        const currentPlaybackRate = videoPlayer.playbackRate;
+        const newPlaybackRate = Math.max(currentPlaybackRate - 0.5, 0.5);
+        videoPlayer.playbackRate = newPlaybackRate;
+        displayAction(`Playback speed: ${newPlaybackRate}x`);
+      }
+    });
+
+    // Function to display action on the screen and hide after 2 seconds
+    function displayAction(action) {
+      clearTimeout(actionTimeout);
+      actionDisplay.textContent = action;
+      actionDisplay.style.display = 'block';
+      actionTimeout = setTimeout(() => {
+        actionDisplay.style.display = 'none';
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

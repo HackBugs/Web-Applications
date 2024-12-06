@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Channel Web Application</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+  <div class="video-container">
+    <div id="player"></div>
+    <button id="subtitle-button">Toggle Subtitles</button>
+    <button id="next-button">Next Video</button>
+    <div id="caption-box"></div>
+  </div>
+
+  <script>
+    // Replace 'YOUR_API_KEY' with your YouTube Data API key
+    const apiKey = 'AIzaSyBGjH0q_FVxaSrSoyjy-piutaJCniVgsj4';
+
+    // Replace 'YOUR_CHANNEL_ID' with the ID of the YouTube channel
+    const channelId = 'UCLyr-hfWVCKHcZjV5fg3jbw';
+
+    // Create an object to store YouTube Player API instance
+    let player;
+    let videoIndex = 0;
+    let videos = [];
+
+    // Load the YouTube IFrame API asynchronously
+    function loadYouTubePlayerAPI() {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+
+    // Callback function when YouTube IFrame API is ready
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        playerVars: {
+          'autoplay': 0,
+          'controls': 1,
+          'rel': 0,
+          'showinfo': 0,
+          'modestbranding': 1,
+        },
+        events: {
+          'onReady': onPlayerReady,
+        },
+      });
+    }
+
+    // Callback function when the YouTube player is ready
+    function onPlayerReady(event) {
+      // Load videos from the YouTube channel
+      loadVideos();
+    }
+
+    // Load videos from the YouTube channel
+    function loadVideos() {
+      fetch(`https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=10`)
+        .then(response => response.json())
+        .then(data => {
+          videos = data.items;
+          if (videos.length > 0) {
+            const firstVideoId = videos[0].id.videoId;
+            player.loadVideoById(firstVideoId);
+          }
+        })
+        .catch(error => console.error(error));
+    }
+
+    // Toggle the display of English subtitles
+    function toggleSubtitles() {
+      const track = player.getOption('captions', 'track');
+      if (track && track.languageCode === 'en') {
+        player.unloadModule('captions');
+        document.getElementById('caption-box').innerText = '';
+      } else {
+        player.loadModule('captions', {
+          'languageCode': 'en',
+          'onCaptionsReceived': onCaptionsReceived,
+        });
+      }
+    }
+
+    // Play the next video
+    function playNextVideo() {
+      videoIndex = (videoIndex + 1) % videos.length;
+      const videoId = videos[videoIndex].id.videoId;
+      player.loadVideoById(videoId);
+      document.getElementById('caption-box').innerText = '';
+    }
+
+    // Callback function when captions are received
+    function onCaptionsReceived(captions) {
+      const track = captions.find(track => track.languageCode === 'en');
+      if (track && track.cues && track.cues.length > 0) {
+        const captionsText = track.cues.map(cue => cue.text).join('\n');
+        document.getElementById('caption-box').innerText = captionsText;
+      }
+    }
+
+    // Attach event listeners to the subtitle button and next button
+    document.getElementById('subtitle-button').addEventListener('click', toggleSubtitles);
+    document.getElementById('next-button').addEventListener('click', playNextVideo);
+
+    // Load YouTube Player API when the script is loaded
+    loadYouTubePlayerAPI();
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    }
+
+    #player {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #subtitle-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1;
+    }
+
+    #next-button {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    #caption-box {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 100px;
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 10px;
+      overflow: auto;
+    }
+  </style>
+</body>
+</html>
